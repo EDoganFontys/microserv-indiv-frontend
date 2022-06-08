@@ -1,0 +1,20 @@
+<form [formGroup]="form" class="form-group">
+  <div style="text-align: center">
+    <h3>{{message}}</h3>
+  </div>
+
+  <label>Username:</label>
+  <input [(ngModel)]="register.username" formControlName="username" placeholder="username" required/>
+
+  <label>Email:</label>
+  <input [(ngModel)]="register.email" formControlName="email" placeholder="email" required type="email"/>
+
+  <label>Password:</label>
+  <input [(ngModel)]="register.password" formControlName="password" placeholder="password" required type="password"/>
+
+  <label>Repeat password:</label>
+  <input [(ngModel)]="register.controlPassword" formControlName="controlPassword" placeholder="repeat password"
+         required type="password"/>
+
+  <button (click)="registerUser()" type="button">Register</button>
+</form>

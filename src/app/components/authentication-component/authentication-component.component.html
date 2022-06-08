@@ -1,0 +1,13 @@
+<form [formGroup]="form" class="form-group">
+  <div style="text-align: center">
+    <h3>{{message}}</h3>
+  </div>
+
+  <label>Username:</label>
+  <input [(ngModel)]="account.username" formControlName="username" placeholder="username" required/>
+
+  <label>Password:</label>
+  <input [(ngModel)]="account.password" formControlName="password" placeholder="password" required type="password"/>
+
+  <button (click)="submit()" type="button">Log in</button>
+</form>
