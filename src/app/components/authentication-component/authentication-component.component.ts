@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import {User} from "../../classes/user";
-import {AuthenticationService} from "../../services/authentication.service";
+import {AuthService} from "../../_security/auth.service";
 import {Router} from "@angular/router";
 import {FormControl, FormGroup} from "@angular/forms";
 import {LoginUser} from "../../classes/loginUser";
+import {TokenStorageService} from "../../_security/token-storage.service";
 
 @Component({
   selector: 'app-authentication-component',
@@ -12,7 +12,7 @@ import {LoginUser} from "../../classes/loginUser";
 })
 export class AuthenticationComponentComponent implements OnInit {
 
-  constructor(private service: AuthenticationService, private router: Router, private authService: AuthenticationService) { }
+  constructor(private router: Router, private authService: AuthService,private tokenStorage: TokenStorageService) { }
 
   form: FormGroup = new FormGroup({
     username: new FormControl(''),
@@ -20,31 +20,37 @@ export class AuthenticationComponentComponent implements OnInit {
   });
   account: LoginUser = new LoginUser( '', '');
   message: any;
-
+  isLoggedIn = false;
+  isLoginFailed = false;
+  roles: string[] = [];
   ngOnInit(): void {
+    if (this.tokenStorage.getToken()) {
+      this.isLoggedIn = true;
+      this.roles = this.tokenStorage.getUser().roles;
+    }
   }
 
   submit() {
     if (this.form.valid) {
       console.log(this.account);
-      this.authService.Login(this.account.username, this.account.password).subscribe((data: string) => {
-        this.loginResponse(data);
-      });
+      this.authService.Login(this.account.username, this.account.password).subscribe(
+        data => {
+          this.tokenStorage.saveToken(data.accessToken);
+          this.tokenStorage.saveUser(data);
+          this.isLoginFailed = false;
+          this.isLoggedIn = true;
+          this.roles = this.tokenStorage.getUser().roles;
+          this.router.navigate(['home']).then(() => window.location.reload());
+        },
+        err => {
+          this.loginResponse(err.error.message);
+          this.isLoginFailed = true;
+        }
+      );
     }
   }
 
-  loginResponse(data : any) {
-    // tslint:disable-next-line:triple-equals
-    this.router.navigate(['login']).then(() => this.message = 'Username or password is invalid.');
-  }
-
-  getUserInfo() {
-    // @ts-ignore
-    this.service.Info().subscribe((data: User) => {
-      sessionStorage.setItem('id', data.id.toString());
-      sessionStorage.setItem('username', data.username);
-      sessionStorage.setItem('role', data.role);
-      this.router.navigate(['']).then(() => window.location.reload());
-    });
+  loginResponse(message : string) {
+    this.router.navigate(['login']).then(() => this.message = message);
   }
 }

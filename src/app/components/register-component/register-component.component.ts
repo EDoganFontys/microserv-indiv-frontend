@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
-import {FormControl, FormGroup} from "@angular/forms";
+import {Component, OnInit} from '@angular/core';
+import {AbstractControl, FormBuilder, FormGroup, Validators} from '@angular/forms';
+import Validation from '../../utils/validation';
 import {Register} from "../../classes/register";
-import {AuthenticationService} from "../../services/authentication.service";
+import {AuthService} from "../../_security/auth.service";
 import {Router} from "@angular/router";
 
 @Component({
@@ -10,38 +11,66 @@ import {Router} from "@angular/router";
   styleUrls: ['./register-component.component.css']
 })
 export class RegisterComponentComponent implements OnInit {
-
-  form: FormGroup = new FormGroup({
-    username: new FormControl(''),
-    email: new FormControl(''),
-    password: new FormControl(''),
-    controlPassword: new FormControl(''),
-    address: new FormControl(''),
-  });
-
-  message: any;
-
-  register: Register = new Register(
-    0,
-    '',
-    '',
-    '',
-    ''
-  );
-
-  constructor(private accountService: AuthenticationService, private router: Router) { }
-
-  ngOnInit(): void {
+  form: any;
+  submitted = false;
+  register: any;
+  errorMessage: any;
+  constructor(private authService: AuthService, private router: Router, private formBuilder: FormBuilder) {
   }
 
-  registerUser(): void {
-    if(this.register.password == this.register.controlPassword){
-      this.message = '';
-    this.accountService.RegisterUser(this.register).subscribe((data) => {
-      this.router.navigate(['']).then(() => window.location.reload());
-    });}
-    else{
-      this.message = 'Passwords do not match.';
+  ngOnInit(): void {
+    this.form = this.formBuilder.group(
+      {
+        username: ['',[
+            Validators.required,
+            Validators.minLength(6),
+            Validators.maxLength(20)
+          ]
+        ],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['',
+          [
+            Validators.required,
+            Validators.minLength(6),
+            Validators.maxLength(40)
+          ]
+        ],
+        confirmPassword: ['', Validators.required],
+        acceptTerms: [false, Validators.requiredTrue]
+      },
+      {
+        validators: [Validation.match('password', 'confirmPassword')]
+      }
+    );
+  }
+
+  get f(): { [key: string]: AbstractControl } {
+    return this.form.controls;
+  }
+  onSubmit(): void {
+    this.submitted = true;
+    if (this.form.invalid) {
+      return;
     }
+    console.log(JSON.stringify(this.form.value, null, 2));
+    this.register = new Register(
+      this.form.value.username,
+      this.form.value.email,
+      this.form.value.password
+    );
+    console.log(this.register);
+    this.authService.Register(this.register).subscribe(
+      data => {
+        console.log(data);
+      },
+      err => {
+        this.errorMessage = err.error.message;
+        console.log(err.error.message);
+      }
+    )
+  }
+  onReset(): void {
+    this.submitted = false;
+    this.form.reset();
   }
 }
