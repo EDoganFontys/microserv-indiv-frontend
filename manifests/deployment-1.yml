@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "emrekubernetes-384e"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "emrekubernetes-384e"
+  template:
+    metadata:
+      labels:
+        app: "emrekubernetes-384e"
+    spec:
+      containers:
+        - name: "emrekubernetes-384e"
+          image: "emreregistry.azurecr.io/emrekubernetes"
+          ports:
+          - containerPort: 80
