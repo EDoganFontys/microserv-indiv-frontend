@@ -22,13 +22,21 @@ jobs:
       with:
          kubeconfig: ${{ secrets.aks_emrekubernetes_kubeConfig }}
       id: login
-    
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: default
+        container-registry-url: emreregistry.azurecr.io
+        container-registry-username: ${{ secrets.acr_emreregistry_username }}
+        container-registry-password: ${{ secrets.acr_emreregistry_password }}
+        secret-name: frontendsecret-auth
+       
     - uses: azure/k8s-deploy@v1.2
       with:
         namespace: default
         manifests: |
           manifests/deployment.yml
         images: |
-          emreregistry.azurecr.io/frontend:${{ github.sha }}
+          emreregistry.azurecr.io/emrekubernetes:${{ github.sha }}
         imagepullsecrets: |
-          acr-secret
+          frontendsecret-auth
