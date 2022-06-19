@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: "emrekubernetes-f107"
+    labels:
+        app: "emrekubernetes-f107"
+    annotations:
+        kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+    rules:
+        - host: default-emrekubernetes-f107.7cb1a353c87748e183cf.uksouth.aksapp.io
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: "emrekubernetes-f107"
+                servicePort: 80

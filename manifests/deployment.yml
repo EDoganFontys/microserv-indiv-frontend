@@ -1,0 +1,19 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: "emrekubernetes-f107"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: "emrekubernetes-f107"
+  template:
+    metadata:
+      labels:
+        app: "emrekubernetes-f107"
+    spec:
+      containers:
+        - name: "emrekubernetes-f107"
+          image: "emreregistry.azurecr.io/emrekubernetes"
+          ports:
+          - containerPort: 80
