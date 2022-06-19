@@ -1,18 +1,15 @@
+FROM node:latest as build
 
-FROM node:10-alpine as build-step
+WORKDIR /usr/local/app
 
-RUN mkdir -p /app
-
-WORKDIR /app
-
-COPY package.json /app
+COPY ./ /usr/local/app/
 
 RUN npm install
 
-COPY . /app
+RUN npm run build
 
-RUN npm run build --prod
+FROM nginx:latest
 
-FROM nginx:1.17.1-alpine
+COPY --from=build /usr/local/app/dist/sample-angular-app /usr/share/nginx/html
 
-COPY --from=build-step /app/docs /usr/share/nginx/html
+EXPOSE 80
