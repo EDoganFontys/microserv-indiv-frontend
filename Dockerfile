@@ -1,4 +1,4 @@
-FROM node:latest as build
+FROM node:16-alpine3.15 as build
 
 WORKDIR /usr/local/app
 
@@ -10,6 +10,6 @@ RUN npm run build
 
 FROM nginx:latest
 
-COPY --from=build /usr/local/app/dist/sample-angular-app /usr/share/nginx/html
+COPY --from=build /usr/local/app/dist/frontend /usr/share/nginx/html
 
-EXPOSE 80
+EXPOSE 4200
